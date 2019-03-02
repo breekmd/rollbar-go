@@ -1,5 +1,20 @@
-# rollbar-go
-[![Build Status](https://travis-ci.org/rollbar/rollbar-go.svg?branch=master)](https://travis-ci.org/rollbar/rollbar-go)
+# rollbar-go fork details
+This is a fork of the original go package
+
+It adds functionality to allow providing your own "poster"
+(for making POST requests)
+
+This is useful when trying to add Rollbar logging into an
+Appengine golang project and you need to make the POST
+requests using url.Fetch and provide a context.
+
+However, while this will work for Appengine, architecturally 
+is not the best option, as request context has to be provided
+to the appengine client on every post, whereas rollbar-go 
+is pretty much a singleton pattern. Use this in case no other
+options available.
+
+# rollbar-go original readme
 
 [Rollbar](https://rollbar.com) is a real-time exception reporting service for Go
 and other languages. The Rollbar service will alert you of problems with your code
