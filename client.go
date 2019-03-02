@@ -25,6 +25,7 @@ type Client struct {
 	// implementation of the Transport interface is used.
 	Transport     Transport
 	configuration configuration
+	poster 		  Poster
 }
 
 // New returns the default implementation of a Client.
@@ -40,6 +41,7 @@ func NewAsync(token, environment, codeVersion, serverHost, serverRoot string) *C
 	return &Client{
 		Transport:     transport,
 		configuration: configuration,
+		poster: &DefaultPoster{},
 	}
 }
 
@@ -50,6 +52,7 @@ func NewSync(token, environment, codeVersion, serverHost, serverRoot string) *Cl
 	return &Client{
 		Transport:     transport,
 		configuration: configuration,
+		poster: &DefaultPoster{},
 	}
 }
 
@@ -59,6 +62,11 @@ func NewSync(token, environment, codeVersion, serverHost, serverRoot string) *Cl
 // One place where this is useful is for turning off reporting in tests.
 func (c *Client) SetEnabled(enabled bool) {
 	c.configuration.enabled = enabled
+}
+
+// SetPoster sets the poster used for POST to Rollbar API
+func (c *Client) SetPoster(poster *Poster){
+	c.poster = *poster
 }
 
 // SetToken sets the token used by this client.
@@ -257,6 +265,11 @@ func (c *Client) ScrubFields() *regexp.Regexp {
 // CaptureIp is the currently set level of IP address information to capture from requests.
 func (c *Client) CaptureIp() captureIp {
 	return c.configuration.captureIp
+}
+
+//Poster is the currently set poster for POST to Rollbar API
+func (c *Client) GetPoster() *Poster{
+	return &c.poster
 }
 
 // -- Error reporting

@@ -77,6 +77,11 @@ func SetCodeVersion(codeVersion string) {
 	std.SetCodeVersion(codeVersion)
 }
 
+// SetPoster sets the poster used for POST to Rollbar API
+func SetPoster(poster *Poster){
+	std.SetPoster(poster)
+}
+
 // SetServerHost sets the host value on the managed Client instance.
 // Server host is the hostname sent with all Rollbar items. The value will be indexed.
 func SetServerHost(serverHost string) {
@@ -242,6 +247,11 @@ func Fingerprint() bool {
 // CaptureIp is the currently set level of IP address information to capture from requests.
 func CaptureIp() captureIp {
 	return std.CaptureIp()
+}
+
+//Poster is the currently set poster for POST to Rollbar API
+func GetPoster() (*Poster){
+	return std.GetPoster()
 }
 
 // -- Reporting
