@@ -78,7 +78,7 @@ func SetCodeVersion(codeVersion string) {
 }
 
 // SetPoster sets the poster used for POST to Rollbar API
-func SetPoster(poster *Poster){
+func SetPoster(poster Poster){
 	std.SetPoster(poster)
 }
 
@@ -250,7 +250,7 @@ func CaptureIp() captureIp {
 }
 
 //Poster is the currently set poster for POST to Rollbar API
-func GetPoster() (*Poster){
+func GetPoster() Poster{
 	return std.GetPoster()
 }
 

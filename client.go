@@ -65,8 +65,8 @@ func (c *Client) SetEnabled(enabled bool) {
 }
 
 // SetPoster sets the poster used for POST to Rollbar API
-func (c *Client) SetPoster(poster *Poster){
-	c.poster = *poster
+func (c *Client) SetPoster(poster Poster){
+	c.poster = poster
 }
 
 // SetToken sets the token used by this client.
@@ -268,8 +268,8 @@ func (c *Client) CaptureIp() captureIp {
 }
 
 //Poster is the currently set poster for POST to Rollbar API
-func (c *Client) GetPoster() *Poster{
-	return &c.poster
+func (c *Client) GetPoster() Poster{
+	return c.poster
 }
 
 // -- Error reporting
