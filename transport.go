@@ -37,6 +37,7 @@ type Transport interface {
 	SetRetryAttempts(retryAttempts int)
 	// Set whether to print the payload to the set logger or to stderr upon failing to send.
 	SetPrintPayloadOnError(printPayloadOnError bool)
+	SetPoster(poster Poster)
 }
 
 // ClientLogger is the interface used by the rollbar Client/Transport to report problems.
@@ -51,8 +52,8 @@ type SilentClientLogger struct{}
 func (s *SilentClientLogger) Printf(format string, args ...interface{}) {}
 
 // NewTransport creates a transport that sends items to the Rollbar API asynchronously.
-func NewTransport(token, endpoint string) Transport {
-	return NewAsyncTransport(token, endpoint, DefaultBuffer)
+func NewTransport(token, endpoint string, poster Poster) Transport {
+	return NewAsyncTransport(token, endpoint, DefaultBuffer, poster)
 }
 
 // -- rollbarError

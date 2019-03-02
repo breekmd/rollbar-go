@@ -27,6 +27,7 @@ type AsyncTransport struct {
 	PrintPayloadOnError bool
 	bodyChannel         chan payload
 	waitGroup           sync.WaitGroup
+	poster              Poster
 }
 
 type payload struct {
@@ -37,7 +38,7 @@ type payload struct {
 // NewAsyncTransport builds an asynchronous transport which sends data to the Rollbar API at the
 // specified endpoint using the given access token. The channel is limited to the size of the input
 // buffer argument.
-func NewAsyncTransport(token string, endpoint string, buffer int) *AsyncTransport {
+func NewAsyncTransport(token string, endpoint string, buffer int, poster Poster) *AsyncTransport {
 	transport := &AsyncTransport{
 		Token:               token,
 		Endpoint:            endpoint,
@@ -45,6 +46,7 @@ func NewAsyncTransport(token string, endpoint string, buffer int) *AsyncTranspor
 		RetryAttempts:       DefaultRetryAttempts,
 		PrintPayloadOnError: true,
 		bodyChannel:         make(chan payload, buffer),
+		poster:				 poster,
 	}
 
 	go func() {
@@ -120,6 +122,11 @@ func (t *AsyncTransport) SetToken(token string) {
 	t.Token = token
 }
 
+// SetPoster sets the poster used for POST to Rollbar API
+func (t *AsyncTransport) SetPoster(poster Poster){
+	t.poster = poster
+}
+
 // SetEndpoint updates the API endpoint to send items to.
 // Any request that is currently in the queue will use this
 // updated endpoint value. If you want to change the endpoint without
@@ -149,5 +156,5 @@ func (t *AsyncTransport) SetPrintPayloadOnError(printPayloadOnError bool) {
 }
 
 func (t *AsyncTransport) post(p payload) (error, bool) {
-	return clientPost(t.Token, t.Endpoint, p.body, t.Logger)
+	return clientPost(t.Token, t.Endpoint, p.body, t.Logger, t.poster)
 }

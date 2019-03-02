@@ -18,16 +18,18 @@ type SyncTransport struct {
 	// PrintPayloadOnError is whether or not to output the payload to the set logger or to stderr if
 	// an error occurs during transport to the Rollbar API.
 	PrintPayloadOnError bool
+	poster              Poster
 }
 
 // NewSyncTransport builds a synchronous transport which sends data to the Rollbar API at the
 // specified endpoint using the given access token.
-func NewSyncTransport(token, endpoint string) *SyncTransport {
+func NewSyncTransport(token, endpoint string, poster Poster) *SyncTransport {
 	return &SyncTransport{
 		Token:               token,
 		Endpoint:            endpoint,
 		RetryAttempts:       DefaultRetryAttempts,
 		PrintPayloadOnError: true,
+		poster:				 poster,
 	}
 }
 
@@ -40,7 +42,7 @@ func (t *SyncTransport) Send(body map[string]interface{}) error {
 }
 
 func (t *SyncTransport) doSend(body map[string]interface{}, retriesLeft int) error {
-	err, canRetry := clientPost(t.Token, t.Endpoint, body, t.Logger)
+	err, canRetry := clientPost(t.Token, t.Endpoint, body, t.Logger, t.poster)
 	if err != nil {
 		if !canRetry || retriesLeft <= 0 {
 			if t.PrintPayloadOnError {
@@ -59,6 +61,11 @@ func (t *SyncTransport) Wait() {}
 // Close is a no-op for the synchronous transport.
 func (t *SyncTransport) Close() error {
 	return nil
+}
+
+// SetPoster sets the poster used for POST to Rollbar API
+func (t *SyncTransport) SetPoster(poster Poster){
+	t.poster = poster
 }
 
 // SetToken updates the token to use for future API requests.

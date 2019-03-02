@@ -249,11 +249,6 @@ func CaptureIp() captureIp {
 	return std.CaptureIp()
 }
 
-//Poster is the currently set poster for POST to Rollbar API
-func GetPoster() Poster{
-	return std.GetPoster()
-}
-
 // -- Reporting
 
 // Critical reports an item with level `critical`. This function recognizes arguments with the following types:

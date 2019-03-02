@@ -25,7 +25,6 @@ type Client struct {
 	// implementation of the Transport interface is used.
 	Transport     Transport
 	configuration configuration
-	poster 		  Poster
 }
 
 // New returns the default implementation of a Client.
@@ -37,22 +36,20 @@ func New(token, environment, codeVersion, serverHost, serverRoot string) *Client
 // NewAsync builds a Client with the asynchronous implementation of the transport interface.
 func NewAsync(token, environment, codeVersion, serverHost, serverRoot string) *Client {
 	configuration := createConfiguration(token, environment, codeVersion, serverHost, serverRoot)
-	transport := NewTransport(token, configuration.endpoint)
+	transport := NewTransport(token, configuration.endpoint, DefaultPoster{})
 	return &Client{
 		Transport:     transport,
 		configuration: configuration,
-		poster: &DefaultPoster{},
 	}
 }
 
 // NewSync builds a Client with the synchronous implementation of the transport interface.
 func NewSync(token, environment, codeVersion, serverHost, serverRoot string) *Client {
 	configuration := createConfiguration(token, environment, codeVersion, serverHost, serverRoot)
-	transport := NewSyncTransport(token, configuration.endpoint)
+	transport := NewSyncTransport(token, configuration.endpoint, DefaultPoster{})
 	return &Client{
 		Transport:     transport,
 		configuration: configuration,
-		poster: &DefaultPoster{},
 	}
 }
 
@@ -66,7 +63,7 @@ func (c *Client) SetEnabled(enabled bool) {
 
 // SetPoster sets the poster used for POST to Rollbar API
 func (c *Client) SetPoster(poster Poster){
-	c.poster = poster
+	c.Transport.SetPoster(poster)
 }
 
 // SetToken sets the token used by this client.
@@ -265,11 +262,6 @@ func (c *Client) ScrubFields() *regexp.Regexp {
 // CaptureIp is the currently set level of IP address information to capture from requests.
 func (c *Client) CaptureIp() captureIp {
 	return c.configuration.captureIp
-}
-
-//Poster is the currently set poster for POST to Rollbar API
-func (c *Client) GetPoster() Poster{
-	return c.poster
 }
 
 // -- Error reporting
@@ -589,7 +581,7 @@ func createConfiguration(token, environment, codeVersion, serverHost, serverRoot
 // boolean return parameter indicates whether the error is temporary or not. If this boolean return
 // value is true then the caller could call this function again with the same input and possibly
 // see a non-error response.
-func clientPost(token, endpoint string, body map[string]interface{}, logger ClientLogger) (error, bool) {
+func clientPost(token, endpoint string, body map[string]interface{}, logger ClientLogger, poster Poster) (error, bool) {
 	if len(token) == 0 {
 		rollbarError(logger, "empty token")
 		return nil, false
@@ -601,7 +593,7 @@ func clientPost(token, endpoint string, body map[string]interface{}, logger Clie
 		return err, false
 	}
 
-	resp, err := http.Post(endpoint, "application/json", bytes.NewReader(jsonBody))
+	resp, err := poster.Post(endpoint, "application/json", bytes.NewReader(jsonBody))
 	if err != nil {
 		rollbarError(logger, "POST failed: %s", err.Error())
 		return err, isTemporary(err)

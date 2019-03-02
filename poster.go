@@ -14,7 +14,7 @@ type Poster interface {
 type DefaultPoster struct{
 }
 
-func (defaultPoster *DefaultPoster) Post(url string, contentType string, body io.Reader) (resp *http.Response, err error) {
+func (defaultPoster DefaultPoster) Post(url string, contentType string, body io.Reader) (resp *http.Response, err error) {
 	resp, err = http.Post(url, contentType, body)
 
 	return
